@@ -1,0 +1,20 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "BST2",
+            "request": "launch",
+            "type": "al",
+            "environmentType": "Sandbox",
+            "environmentName": "Sandbox11062026",
+            "startupObjectId": 9307,
+            "tenant": "7938a26f-f5d2-4a5d-bd45-7d7212d1cba0",
+            "startupObjectType": "Page",
+            "breakOnError": "All",
+            "launchBrowser": true,
+            "enableLongRunningSqlStatements": true,
+            "enableSqlInformationDebugger": true,
+            // "schemaUpdateMode": "Recreate"
+        }
+    ]
+}

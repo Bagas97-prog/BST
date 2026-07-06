@@ -1,0 +1,357 @@
+// report 54000 "DGS Posted Sales Invoice"
+// {
+//     /*
+//     ISSUE/26/01/0001
+//     1. Buat report baru yg formatnya sama dengan report posted sakes inv FIT (50005)   
+//    */
+//     Caption = 'Print Sales Invoice';
+//     UsageCategory = ReportsAndAnalysis;
+//     ApplicationArea = All;
+//     DefaultLayout = RDLC;
+//     RDLCLayout = './reports/Rep.54000.LapPostedSalesInvoice.rdl';
+
+//     dataset
+//     {
+//         dataitem("Sales Invoice Header"; "Sales Invoice Header")
+//         {
+//             RequestFilterFields = "No.";
+//             column(CompanyInfo_name; CompanyName) { }
+//             column(caddress; company.Address) { }
+//             column(caddress2; company."Address 2") { }
+//             column(ccity; company.City) { }
+//             column(cregion; company."Country/Region Code") { }
+//             column(cpost; company."Post Code") { }
+//             column(cphone; company."Phone No.") { }
+//             column(CompanyInfo_logo; CompanyInfo.Picture) { }
+//             column(No_; "No.") { }
+//             column(Posting_Date; "Document Date") { }
+//             column(Payment_Terms_Code; Payment_Terms_Code) { }
+//             column(Sell_to_Customer_No_; "Sell-to Customer No.") { }
+//             column(PO_Customer_No_; PO_Customer_No_) { }
+//             //column(orderno; "Order No.")
+//             column(orderno; orderno) { }
+//             column(Currency_Code; CurrencyCodeDisplay) { }
+//             column(No__Faktur_Pajak; NoFakturPajakDisplay) { }
+//             column(custname; custname) { }
+//             column(custtelp; custtelp) { }
+//             column(custfax; custfax) { }
+//             column(custvatreg; custvatreg) { }
+//             column(custaddress; custaddress) { }
+//             column(custaddress2; custaddress2) { }
+//             column(custcity; custcity) { }
+//             column(custcontact; custcontact) { }
+//             column(contactphone; contactphone) { }
+//             column(banktransfer; banktransfer) { }
+//             column(bankrecno; bankrecno) { }
+//             column(Due_Date; "Due Date") { }
+//             column(shipno; shipno) { }
+//             column(lastapproved; lastapproved) { }
+//             column(remark; remark) { }
+//             column(tax; tax) { }
+
+//             dataitem("Sales Invoice Line"; "Sales Invoice Line")
+//             {
+//                 DataItemLink = "Document No." = FIELD("No.");
+//                 DataItemTableView = where("Prepayment Line" = filter(false), "No." = filter(<> ''));
+//                 column(itemno; "No.") { }
+//                 column(Description; _Desc) { }
+//                 column(LineDescription; Description) { }
+//                 column(LineDescription_2; "Description 2") { }
+//                 column(ItemDesc2; _Item."Description 2") { }
+//                 column(Quantity; Quantity) { }
+//                 column(Unit_Price; "Unit Price") { }
+//                 column(nourut; nourut) { }
+//                 column(Line_Amount; "Line Amount") { }
+//                 column(Disc__Lv__1____; "Disc. Lv. 1 (%)") { }
+//                 column(Disc__Lv__2____; "Disc. Lv. 2 (%)") { }
+//                 column(amount; amount) { }
+//                 column(amt; amt) { }
+//                 column(amtdisclv1; amtdisclv1) { }
+//                 column(amtdisclv2; amtdisclv2) { }
+//                 column(totaldisc; totaldisc) { }
+//                 column(dpp; dpp) { }
+//                 column(ppn; ppn) { }
+//                 column(totamt; totamt) { }
+//                 column(said; said) { }
+//                 column(border; border) { }
+
+//                 trigger OnPreDataItem()
+//                 var
+//                     myInt: Integer;
+//                 begin
+//                     nourut := 0;
+//                 end;
+
+//                 trigger OnAfterGetRecord()
+
+//                 begin
+//                     //<<
+//                     if _Item.Get("No.") then begin
+//                         _Desc := _Item."Description 2";
+//                     end else begin
+//                         _Desc := Description;
+//                     end;
+//                     //>>
+//                     amt := 0;
+//                     amtdisclv1 := 0;
+//                     amtdisclv2 := 0;
+//                     totaldisc := 0;
+
+
+//                     if "No." <> '' then
+//                         nourut := nourut + 1;
+
+//                     border := nourut;
+//                     if border MOD 9 = 0 then
+//                         border := 0;
+
+//                     amt := (Quantity * "Unit Price");
+//                     amtdisclv1 := amt * ("Disc. Lv. 1 (%)" / 100);
+
+//                     if "Disc. Lv. 1 (%)" <> 0 then
+//                         amtdisclv2 := (amt - amtdisclv1) * ("Disc. Lv. 2 (%)" / 100)//fix code in 110523
+//                     else
+//                         amtdisclv2 := amt * ("Disc. Lv. 2 (%)" / 100);
+
+//                     totaldisc := amt - amtdisclv1 - amtdisclv2;
+
+//                     ppn := totaldisc * ("VAT %" / 100);
+//                     totamt := totaldisc + ppn;
+//                     said := cu_said.Terbilang(totamt, '', true);//grandtotal, '');
+//                 end;
+
+//             }
+//             trigger OnAfterGetRecord()
+//             begin
+//                 // === Currency Code Display ===
+//                 if "Currency Code" = '' then
+//                     CurrencyCodeDisplay := '-'
+//                 else
+//                     CurrencyCodeDisplay := "Currency Code";
+
+//                 // === No. Faktur Pajak Display ===
+//                 if "No. Faktur Pajak" = '' then
+//                     NoFakturPajakDisplay := '-'
+//                 else
+//                     NoFakturPajakDisplay := "No. Faktur Pajak";
+
+//                 // === CUSTOMER ===
+//                 if grec_cust.get("Sell-to Customer No.") then begin
+//                     custname := grec_cust."Pajak Name";
+
+//                     // TELP
+//                     if grec_cust."Phone No." = '' then
+//                         custtelp := '-'
+//                     else
+//                         custtelp := grec_cust."Phone No.";
+
+//                     // FAX
+//                     if grec_cust."Fax No." = '' then
+//                         custfax := '-'
+//                     else
+//                         custfax := grec_cust."Fax No.";
+
+//                     // VAT REG NO
+//                     if grec_cust."VAT Registration No." = '' then
+//                         custvatreg := '-'
+//                     else
+//                         custvatreg := grec_cust."VAT Registration No.";
+
+//                     // ADDRESS
+//                     if grec_cust."Pajak Address" = '' then
+//                         custaddress := '-'
+//                     else
+//                         custaddress := grec_cust."Pajak Address";
+
+//                     // City
+//                     if grec_cust.City = '' then
+//                         custcity := '-'
+//                     else
+//                         custcity := grec_cust.City;
+
+//                     // Contact
+//                     if grec_contact.get(grec_cust."Primary Contact No.") then begin
+//                         custcontact := grec_contact.Name;
+//                         contactphone := grec_contact."Phone No.";
+//                     end else begin
+//                         custcontact := '-';
+//                         contactphone := '-';
+//                     end;
+//                 end;
+
+//                 if grec_bank.get(bankname) then begin
+//                     banktransfer := grec_bank.Name;
+//                     bankrecno := grec_bank."Bank Account No.";
+//                 end else begin
+//                     banktransfer := '-';
+//                     bankrecno := '-';
+//                 end;
+
+//                 shipno := '';
+//                 grec_sil.Reset();
+//                 grec_sil.SetRange("Document No.", "No.");
+//                 grec_sil.SetFilter("Shipment No.", '<>%1', '');
+//                 if grec_sil.FindFirst() then begin
+//                     repeat
+
+//                         if shipmentno <> grec_sil."Shipment No." then begin
+//                             shipmentno := grec_sil."Shipment No.";
+//                             shipno := shipno + '   ' + grec_sil."Shipment No." + '   ';
+//                         end;
+//                         if shipmentno = grec_sil."Shipment No." then
+//                             shipno := shipno + '   ';
+
+//                         // TAX
+//                         tax := grec_sil."VAT %";
+
+//                         // get dari posted sales shipment
+//                         grec_ssh.reset;
+//                         grec_ssh.SetRange("No.", shipmentno);
+//                         if grec_ssh.FindFirst() then begin
+//                             orderno := grec_ssh."Order No.";
+//                             PO_Customer_No_ := grec_ssh."DGS PO Customer No";
+//                         end;
+
+//                     until grec_sil.next = 0;
+//                 end
+//                 else begin
+//                     grec_ssh.reset;
+//                     grec_ssh.SetRange("Order No.", "Order No.");
+//                     if grec_ssh.FindFirst() then begin
+//                         orderno := grec_ssh."Order No.";
+//                         PO_Customer_No_ := grec_ssh."DGS PO Customer No";
+//                         shipno := grec_ssh."No." + '   ';
+//                     end;
+//                 end;
+
+//                 grec_sil.Reset();
+//                 grec_sil.SetRange("Document No.", "Sales Invoice Header"."No.");
+//                 grec_sil.SetFilter("VAT Prod. Posting Group", '<>%1', '');
+//                 if grec_sil.FindFirst() then;
+//                 if tax = 0 then
+//                     tax := grec_sil."VAT %";
+
+//                 rec_payterms.reset;
+//                 rec_payterms.SetRange(Code, "Payment Terms Code");
+//                 if rec_payterms.FindFirst() then
+//                     Payment_Terms_Code := rec_payterms.Description
+//                 else
+//                     Payment_Terms_Code := '-';
+
+//                 rec_appentry.reset;
+//                 rec_appentry.SetFilter("Table ID", '112');
+//                 rec_appentry.SetRange("Document No.", "No.");
+//                 if rec_appentry.FindLast() then
+//                     lastapproved := rec_appentry."Approver ID"
+//                 else
+//                     lastapproved := '-';
+
+//                 DocRemark.Reset();
+//                 DocRemark.SetRange("Remark Type", DocRemark."Remark Type"::Tail);
+//                 DocRemark.SetRange("Table No.", 112);
+//                 DocRemark.SetRange("Document No.", "No.");
+//                 if DocRemark.FindSet() then begin
+//                     repeat
+//                         if remark = '' then
+//                             remark := DocRemark.Remark
+//                         else
+//                             remark := remark + ';' + DocRemark.Remark
+//                     until DocRemark.Next() = 0;
+//                 end else begin
+//                     remark := '-';
+//                 end;
+//             end;
+//         }
+//     }
+
+//     requestpage
+//     {
+//         SaveValues = true;
+
+//         layout
+//         {
+//             area(Content)
+//             {
+//                 group(GroupName)
+//                 {
+//                     field(bankname; bankname)
+//                     {
+//                         ApplicationArea = All;
+//                         Caption = 'Bank Transfer';
+//                         TableRelation = "Bank Account"."No." where("Bank Account No." = filter(<> ''));
+//                     }
+//                 }
+//             }
+//         }
+
+//         actions
+//         {
+//             area(processing)
+//             {
+//             }
+//         }
+//     }
+//     trigger OnInitReport()
+//     var
+//         myInt: Integer;
+//     begin
+//         company.get;
+//         CompanyInfo.Get;
+//         CompanyInfo.CalcFields(Picture);
+//     end;
+
+//     var
+
+//         cu_said: Codeunit "DGS Terbilang v.2";
+//         said: Text;
+//         border: Decimal;
+//         rec_appentry: Record "Approval Entry";
+//         lastapproved: Text;
+//         tax: Decimal;
+//         grec_sil: Record "Sales Invoice Line";
+//         grec_ssl: Record "Sales Shipment Line";
+//         grec_ssh: Record "Sales Shipment Header";
+//         grec_sh: Record "Sales Header";
+//         company: Record "Company Information";
+//         grec_cust: Record Customer;
+//         custname: Text[250];
+//         custtelp: Text[50];
+//         custfax: Text[50];
+//         custvatreg: Text[50];
+//         custaddress: Text[250];
+//         custaddress2: Text[250];
+//         custcity: Text[50];
+//         PO_Customer_No_: Text[50];
+//         CompanyInfo: Record "Company Information";
+
+//         custcontact: Text[50];
+//         grec_contact: Record Contact;
+//         contactphone: Text[50];
+//         grec_bank: Record "Bank Account";
+//         bankname: Text[50];
+//         banktransfer: Text[50];
+//         bankrecno: Text[50];
+//         nourut: Integer;
+//         grec_pt: Record "Payment Terms";
+//         amt: Decimal;
+//         amtdisclv1: Decimal;
+//         amtdisclv2: Decimal;
+//         totaldisc: Decimal;
+//         dpp: Decimal;
+//         ppn: Decimal;
+//         totamt: Decimal;
+//         orderno: Code[20];
+//         shipno: Code[1500];
+//         shipmentno: Code[50];
+//         Payment_Terms_Code: Text;
+//         rec_payterms: Record "Payment Terms";
+//         docremark: Record "Document Remark";
+//         remark, _Desc : Text;
+//         _Item: Record Item;
+
+//         CurrencyCodeDisplay: Text[10];
+
+//         NoFakturPajakDisplay: code[20];
+
+
+// }

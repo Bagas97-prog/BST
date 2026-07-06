@@ -1,0 +1,126 @@
+codeunit 50200 "Settlement Format"
+{
+    Permissions = tabledata "Settlement Report" = RIMD;
+
+    var
+        CusLeEnt: Record "Cust. Ledger Entry";
+        Settlement: Record "Settlement Report";
+        DetailedCustLedEnt: Record "Detailed Cust. Ledg. Entry";
+        StrangeDetailEntry: Record "Detailed Cust. Ledg. Entry";
+        FoundStrangeDetailEntry: Record "Detailed Cust. Ledg. Entry";
+        i: Integer;
+        Amount: Decimal;
+        // \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+        CusLeEntDup: Record "Cust. Ledger Entry";
+
+    trigger OnRun();
+    begin
+        InsertDataSettlement();
+    end;
+
+    procedure InsertDataSettlement()
+    begin
+        Settlement.DeleteAll(true);
+        IF CusLeEnt.FINDSET THEN BEGIN
+            REPEAT
+                if CusLeEnt."Document Type" = Enum::"Gen. Journal Document Type"::Invoice then begin
+                    DetailedCustLedEnt.Reset();
+                    DetailedCustLedEnt.SetRange("Cust. Ledger Entry No.", CusLeEnt."Entry No.");
+                    DetailedCustLedEnt.SetRange("Entry Type", Enum::"Detailed CV Ledger Entry Type"::"Initial Entry");
+                    DetailedCustLedEnt.FindFirst();
+                    Amount := DetailedCustLedEnt."Amount (LCY)";
+                    DetailedCustLedEnt.Reset();
+                    DetailedCustLedEnt.SetRange("Cust. Ledger Entry No.", CusLeEnt."Entry No.");
+                    if DetailedCustLedEnt.FindSet then begin
+                        repeat
+                            Settlement.Init();
+                            i := i + 1;
+                            Settlement."Entry No." := i;
+                            Settlement."Posting Date" := CusLeEnt."Posting Date";
+                            Settlement."Document Date" := CusLeEnt."Document Date";
+                            Settlement."Document Type" := CusLeEnt."Document Type";
+                            Settlement."Principal Code" := CusLeEnt."Global Dimension 1 Code";
+                            Settlement."Cust Posting Group" := CusLeEnt."Customer Posting Group";
+                            Settlement."Document No" := CusLeEnt."Document No.";
+                            Settlement."Invoice Amount" := Amount;
+                            Settlement."Cust No" := CusLeEnt."Customer No.";
+                            Settlement."Cust Name" := CusLeEnt."Customer Name";
+                            Settlement."Posting Date Settlement" := DetailedCustLedEnt."Posting Date";
+                            Settlement."Document Type Settlement" := DetailedCustLedEnt."Document Type";
+                            Settlement."Document No Settlement" := DetailedCustLedEnt."Document No.";
+                            Settlement."Amount LCY Settlement" := DetailedCustLedEnt."Amount (LCY)";
+                            Settlement."Customer Ledger Entry" := DetailedCustLedEnt."Cust. Ledger Entry No.";
+                            Settlement."Entry Type" := DetailedCustLedEnt."Entry Type";
+                            if (DetailedCustLedEnt."Entry Type" <> Enum::"Detailed CV Ledger Entry Type"::"Initial Entry") AND (DetailedCustLedEnt."Document Type" = Enum::"Gen. Journal Document Type"::Invoice) then begin
+                                StrangeDetailEntry.Reset();
+                                StrangeDetailEntry.SetRange("Document Type", DetailedCustLedEnt."Document Type");
+                                StrangeDetailEntry.SetRange("Document No.", DetailedCustLedEnt."Document No.");
+                                StrangeDetailEntry.SetFilter("Cust. Ledger Entry No.", '<>%1', CusLeEnt."Entry No.");
+                                StrangeDetailEntry.FindFirst();
+                                FoundStrangeDetailEntry.Reset();
+                                FoundStrangeDetailEntry.SetRange("Entry Type", Enum::"Detailed CV Ledger Entry Type"::"Initial Entry");
+                                FoundStrangeDetailEntry.SetRange("Cust. Ledger Entry No.", StrangeDetailEntry."Cust. Ledger Entry No.");
+                                FoundStrangeDetailEntry.FindFirst();
+                                Settlement."Document No Settlement" := FoundStrangeDetailEntry."Document No.";
+                                Settlement."Document Type Settlement" := FoundStrangeDetailEntry."Initial Document Type";
+                            end;
+                            Settlement.Insert();
+                        until DetailedCustLedEnt.NEXT = 0;
+                    end;
+                end;
+                // 
+                // 
+                CusLeEnt.Reset();
+                CusLeEntDup.SetRange("Document No.", CusLeEnt."Document No.");
+                CusLeEntDup.SetFilter("Document Type", '<>%1', Enum::"Gen. Journal Document Type"::Invoice);
+                if CusLeEntDup.FindSet() then begin
+                    repeat
+                        DetailedCustLedEnt.Reset();
+                        DetailedCustLedEnt.SetRange("Cust. Ledger Entry No.", CusleEntDup."Entry No.");
+                        DetailedCustLedEnt.SetRange("Entry Type", Enum::"Detailed CV Ledger Entry Type"::"Initial Entry");
+                        DetailedCustLedEnt.FindFirst();
+                        Amount := DetailedCustLedEnt."Amount (LCY)";
+                        DetailedCustLedEnt.Reset();
+                        DetailedCustLedEnt.SetRange("Cust. Ledger Entry No.", CusleEntDup."Entry No.");
+                        if DetailedCustLedEnt.FindSet then begin
+                            repeat
+                                Settlement.Init();
+                                i := i + 1;
+                                Settlement."Entry No." := i;
+                                Settlement."Posting Date" := CusleEntDup."Posting Date";
+                                Settlement."Document Date" := CusleEntDup."Document Date";
+                                Settlement."Document Type" := CusleEntDup."Document Type";
+                                Settlement."Principal Code" := CusleEntDup."Global Dimension 1 Code";
+                                Settlement."Cust Posting Group" := CusleEntDup."Customer Posting Group";
+                                Settlement."Document No" := CusleEntDup."Document No.";
+                                Settlement."Invoice Amount" := Amount;
+                                Settlement."Cust No" := CusleEntDup."Customer No.";
+                                Settlement."Cust Name" := CusleEntDup."Customer Name";
+                                Settlement."Posting Date Settlement" := DetailedCustLedEnt."Posting Date";
+                                Settlement."Document Type Settlement" := DetailedCustLedEnt."Document Type";
+                                Settlement."Document No Settlement" := DetailedCustLedEnt."Document No.";
+                                Settlement."Amount LCY Settlement" := DetailedCustLedEnt."Amount (LCY)";
+                                Settlement."Customer Ledger Entry" := DetailedCustLedEnt."Cust. Ledger Entry No.";
+                                Settlement."Entry Type" := DetailedCustLedEnt."Entry Type";
+                                if (DetailedCustLedEnt."Entry Type" <> Enum::"Detailed CV Ledger Entry Type"::"Initial Entry") AND (DetailedCustLedEnt."Document Type" = Enum::"Gen. Journal Document Type"::Invoice) then begin
+                                    StrangeDetailEntry.Reset();
+                                    StrangeDetailEntry.SetRange("Document Type", DetailedCustLedEnt."Document Type");
+                                    StrangeDetailEntry.SetRange("Document No.", DetailedCustLedEnt."Document No.");
+                                    StrangeDetailEntry.SetFilter("Cust. Ledger Entry No.", '<>%1', CusleEntDup."Entry No.");
+                                    StrangeDetailEntry.FindFirst();
+                                    FoundStrangeDetailEntry.Reset();
+                                    FoundStrangeDetailEntry.SetRange("Entry Type", Enum::"Detailed CV Ledger Entry Type"::"Initial Entry");
+                                    FoundStrangeDetailEntry.SetRange("Cust. Ledger Entry No.", StrangeDetailEntry."Cust. Ledger Entry No.");
+                                    FoundStrangeDetailEntry.FindFirst();
+                                    Settlement."Document No Settlement" := FoundStrangeDetailEntry."Document No.";
+                                    Settlement."Document Type Settlement" := FoundStrangeDetailEntry."Initial Document Type";
+                                end;
+                                Settlement.Insert();
+                            until DetailedCustLedEnt.NEXT = 0;
+                        end;
+                    until CusLeEntDup.Next() = 0;
+                end;
+            UNTIL CusLeEnt.NEXT = 0;
+        END;
+    end;
+}

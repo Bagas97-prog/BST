@@ -1,0 +1,44 @@
+{
+  "id": "a425c9fc-65c3-4df7-bcf9-d5c1848fb01f",
+  "name": "BST2",
+  "publisher": "Bagas Tama2",
+  "version": "2.0.5.3",
+  "brief": "",
+  "description": "",
+  "privacyStatement": "",
+  "EULA": "",
+  "help": "",
+  "url": "",
+  "logo": "",
+  "dependencies": [
+  {
+  "id": "7fb9cd1a-af33-4fd0-afe4-f0b8ba508066",
+  "name": "DGS-Indonesian TAX",
+  "publisher": "DGS",
+  "version": "1.0.0.124"
+},
+{
+"id": "ddf74605-30c4-4482-95d6-13d88419dc20",
+"name": "ProjectIDC",
+"publisher": "GITS Consulting",
+"version": "1.0.4.45"
+}],
+  "screenshots": [],
+  "platform": "1.0.0.0",
+  "application": "21.0.0.0",
+  "idRanges": [
+    {
+      "from": 50200,
+      "to": 50249
+    }
+  ],
+  "resourceExposurePolicy": {
+    "allowDebugging": true,
+    "allowDownloadingSource": false,
+    "includeSourceInSymbolFile": false
+  },
+  "runtime": "10.0",
+  "features": [
+    "NoImplicitWith"
+  ]
+}
