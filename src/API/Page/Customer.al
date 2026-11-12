@@ -62,6 +62,11 @@ page 50202 "API IT Customer"
                 {
                     ApplicationArea = All;
                 }
+                field("HarvestCustomerNo"; Rec."Harvest Customer No.")
+                {
+                    ApplicationArea = All;
+                }
+
             }
         }
     }

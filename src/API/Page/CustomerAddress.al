@@ -30,6 +30,11 @@ page 50212 "API IT Customer Address"
                 {
                     ApplicationArea = All;
                 }
+                field("Address2"; Rec."Address 2")
+                {
+                    ApplicationArea = All;
+                }
+
             }
         }
     }

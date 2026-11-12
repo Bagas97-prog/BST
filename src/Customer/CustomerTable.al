@@ -12,6 +12,11 @@ tableextension 50206 "Customer Ext" extends Customer
             Caption = 'Longlat';
             DataClassification = ToBeClassified;
         }
+        field(50202; "Harvest Customer No."; Code[50])
+        {
+            Caption = 'Harvest Customer No';
+            DataClassification = ToBeClassified;
+        }
 
     }
 

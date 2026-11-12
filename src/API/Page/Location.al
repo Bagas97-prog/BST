@@ -35,7 +35,6 @@ page 50208 "API IT Location"
                     Caption = 'LocationType';
                     ApplicationArea = All;
                 }
-
                 field(Branch; Rec."Global Dimension 1 Code")
                 {
                     ApplicationArea = All;

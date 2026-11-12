@@ -9,6 +9,7 @@ reportextension 50203 "PO Print Ext" extends "PO Print"
             column(Ship_to_Address_2_IT; "Ship-to Address 2") { }
             column(Ship_to_Contact_IT; "Ship-to Contact") { }
             column(Ship_to_Phone_No_IT; "Ship-to Phone No.") { }
+            column(Note; Note) { }
         }
     }
 }

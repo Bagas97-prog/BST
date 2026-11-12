@@ -88,4 +88,19 @@ codeunit 50201 CodeUnitIT
         end;
         exit('Not Found');
     end;
+
+    [ServiceEnabled]
+    procedure UpdateCustomerHarvest(CustomerNo: Text[50]; HvsCustomerNo: Code[50]): Text[100]
+    var
+        Customer: Record Customer;
+    begin
+        Customer.Reset();
+        if Customer.Get(CustomerNo) then begin
+            Customer."Harvest Customer No." := HvsCustomerNo;
+            Customer.Modify();
+            exit('Berhasil');
+        end
+        else
+            exit(CustomerNo + ', tidak di temukan di Business Central');
+    end;
 }

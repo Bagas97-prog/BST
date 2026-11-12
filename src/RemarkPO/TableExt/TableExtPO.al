@@ -7,7 +7,11 @@ tableextension 50200 "Additional data PO" extends "Purchase Header"
             Caption = 'Remark';
             DataClassification = ToBeClassified;
         }
-
+        field(50201; "Note"; Text[150])
+        {
+            Caption = 'Note';
+            DataClassification = ToBeClassified;
+        }
 
     }
 

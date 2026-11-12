@@ -5,6 +5,11 @@ pageextension 50201 "Additional data PO Card" extends "Purchase Order"
         addafter(Status)
         {
             field(Remark_IT; Rec."Remark Bagas") { Caption = 'Remark'; ApplicationArea = All; }
+            field(Note; Rec.Note)
+            {
+                ApplicationArea = All;
+                MultiLine = true;
+            }
         }
     }
     actions

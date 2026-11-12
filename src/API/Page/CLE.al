@@ -26,7 +26,6 @@ page 50235 "API IT CLE"
                 {
                     ApplicationArea = All;
                 }
-
                 field("CustomerNo"; Rec."Sell-to Customer No.")
                 {
                     ApplicationArea = All;
